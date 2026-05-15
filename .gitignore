@@ -1,0 +1,32 @@
+*.class
+*.log
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*
+
+# IDE
+.idea/
+*.iml
+*.iws
+.vscode/
+
+# Maven
+target/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Allure
+allure-results/
+allure-report/
+
+# Playwright
+playwright-traces/
+
+# Environment
+*.env
