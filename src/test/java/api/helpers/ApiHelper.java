@@ -4,6 +4,8 @@ import api.models.Booking;
 import config.TestConfig;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
+import io.restassured.filter.log.RequestLoggingFilter;
+import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
@@ -16,8 +18,10 @@ public class ApiHelper {
         return RestAssured.given()
                 .baseUri(CONFIG.getRestfulBookerBaseUrl())
                 .contentType(ContentType.JSON)
-                .accept(ContentType.JSON)
-                .filter(new AllureRestAssured());
+                .accept(ContentType.ANY)
+                .filter(new AllureRestAssured())
+                .filter(new RequestLoggingFilter())
+                .filter(new ResponseLoggingFilter());
     }
 
     public static String getAuthToken() {
