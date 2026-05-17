@@ -17,7 +17,7 @@ public final class TestConfig {
         restfulBookerBaseUrl = resolveProperty("restful.booker.base.url",
                 "https://restful-booker.herokuapp.com");
         graphqlBaseUrl = resolveProperty("graphql.base.url",
-                "https://spacex-production.up.railway.app/graphql");
+                "https://rickandmortyapi.com/graphql");
         demoQaBaseUrl = resolveProperty("demoqa.base.url",
                 "https://demoqa.com");
         bookingUsername = resolveProperty("booking.username", "admin");
