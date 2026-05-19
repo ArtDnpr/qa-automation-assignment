@@ -1,6 +1,9 @@
 package api.helpers;
 
 import api.models.Booking;
+import config.Constants.Endpoints;
+import config.Constants.StatusCode;
+import config.Constants.TestData;
 import config.TestConfig;
 import io.qameta.allure.restassured.AllureRestAssured;
 import io.restassured.RestAssured;
@@ -9,6 +12,8 @@ import io.restassured.filter.log.ResponseLoggingFilter;
 import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
+
+import java.util.Map;
 
 public class ApiHelper {
 
@@ -26,11 +31,12 @@ public class ApiHelper {
 
     public static String getAuthToken() {
         return baseRequest()
-                .body(String.format("{\"username\":\"%s\",\"password\":\"%s\"}",
-                        CONFIG.getBookingUsername(), CONFIG.getBookingPassword()))
-                .post("/auth")
+                .body(Map.of(
+                        "username", CONFIG.getBookingUsername(),
+                        "password", CONFIG.getBookingPassword()))
+                .post(Endpoints.AUTH)
                 .then()
-                .statusCode(200)
+                .statusCode(StatusCode.OK)
                 .extract()
                 .path("token");
     }
@@ -38,9 +44,9 @@ public class ApiHelper {
     public static Booking.BookingResponse createBooking(Booking booking) {
         return baseRequest()
                 .body(booking)
-                .post("/booking")
+                .post(Endpoints.BOOKING)
                 .then()
-                .statusCode(200)
+                .statusCode(StatusCode.OK)
                 .extract()
                 .as(Booking.BookingResponse.class);
     }
@@ -48,7 +54,7 @@ public class ApiHelper {
     public static Response getBooking(int bookingId) {
         return baseRequest()
                 .pathParam("id", bookingId)
-                .get("/booking/{id}");
+                .get(Endpoints.BOOKING_BY_ID);
     }
 
     public static Response updateBooking(int bookingId, Booking booking, String token) {
@@ -56,38 +62,38 @@ public class ApiHelper {
                 .cookie("token", token)
                 .pathParam("id", bookingId)
                 .body(booking)
-                .put("/booking/{id}");
+                .put(Endpoints.BOOKING_BY_ID);
     }
 
     public static Response deleteBooking(int bookingId, String token) {
         return baseRequest()
                 .cookie("token", token)
                 .pathParam("id", bookingId)
-                .delete("/booking/{id}");
+                .delete(Endpoints.BOOKING_BY_ID);
     }
 
     public static Response getAllBookings() {
         return baseRequest()
-                .get("/booking");
+                .get(Endpoints.BOOKING);
     }
 
     public static Response getBookingsFiltered(String paramName, String paramValue) {
         return baseRequest()
                 .queryParam(paramName, paramValue)
-                .get("/booking");
+                .get(Endpoints.BOOKING);
     }
 
     public static Booking buildDefaultBooking() {
         return Booking.builder()
-                .firstname("John")
-                .lastname("Doe")
-                .totalprice(150)
-                .depositpaid(true)
+                .firstname(TestData.DEFAULT_FIRSTNAME)
+                .lastname(TestData.DEFAULT_LASTNAME)
+                .totalprice(TestData.DEFAULT_TOTAL_PRICE)
+                .depositpaid(TestData.DEFAULT_DEPOSIT_PAID)
                 .bookingdates(Booking.BookingDates.builder()
-                        .checkin("2025-01-01")
-                        .checkout("2025-01-10")
+                        .checkin(TestData.DEFAULT_CHECKIN)
+                        .checkout(TestData.DEFAULT_CHECKOUT)
                         .build())
-                .additionalneeds("Breakfast")
+                .additionalneeds(TestData.DEFAULT_ADDITIONAL_NEEDS)
                 .build();
     }
 }

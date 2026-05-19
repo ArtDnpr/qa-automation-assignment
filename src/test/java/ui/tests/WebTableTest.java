@@ -1,5 +1,6 @@
 package ui.tests;
 
+import config.Constants.WebTableColumns;
 import ui.base.BaseUITest;
 import ui.pages.WebTablePage;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,12 +34,12 @@ class WebTableTest extends BaseUITest {
         assertThat(tablePage.getVisibleRowCount()).isEqualTo(initialCount + 1);
 
         tablePage.search("Alice");
-        assertThat(tablePage.getCellText(0, 0)).isEqualTo("Alice");
-        assertThat(tablePage.getCellText(0, 1)).isEqualTo("Wonder");
-        assertThat(tablePage.getCellText(0, 2)).isEqualTo("30");
-        assertThat(tablePage.getCellText(0, 3)).isEqualTo("alice@test.com");
-        assertThat(tablePage.getCellText(0, 4)).isEqualTo("5000");
-        assertThat(tablePage.getCellText(0, 5)).isEqualTo("QA");
+        assertThat(tablePage.getCellText(0, WebTableColumns.FIRST_NAME)).isEqualTo("Alice");
+        assertThat(tablePage.getCellText(0, WebTableColumns.LAST_NAME)).isEqualTo("Wonder");
+        assertThat(tablePage.getCellText(0, WebTableColumns.AGE)).isEqualTo("30");
+        assertThat(tablePage.getCellText(0, WebTableColumns.EMAIL)).isEqualTo("alice@test.com");
+        assertThat(tablePage.getCellText(0, WebTableColumns.SALARY)).isEqualTo("5000");
+        assertThat(tablePage.getCellText(0, WebTableColumns.DEPARTMENT)).isEqualTo("QA");
     }
 
     @Test
@@ -50,8 +51,8 @@ class WebTableTest extends BaseUITest {
         tablePage.fillSalary("99999");
         tablePage.submitForm();
 
-        assertThat(tablePage.getCellText(0, 0)).isEqualTo("Updated");
-        assertThat(tablePage.getCellText(0, 4)).isEqualTo("99999");
+        assertThat(tablePage.getCellText(0, WebTableColumns.FIRST_NAME)).isEqualTo("Updated");
+        assertThat(tablePage.getCellText(0, WebTableColumns.SALARY)).isEqualTo("99999");
     }
 
     @Test
@@ -72,7 +73,7 @@ class WebTableTest extends BaseUITest {
     void searchFunctionality() {
         tablePage.search("Cierra");
         assertThat(tablePage.getVisibleRowCount()).isEqualTo(1);
-        assertThat(tablePage.getCellText(0, 0)).isEqualTo("Cierra");
+        assertThat(tablePage.getCellText(0, WebTableColumns.FIRST_NAME)).isEqualTo("Cierra");
 
         tablePage.clearSearch();
         tablePage.search("nonexistent_xyz_123");

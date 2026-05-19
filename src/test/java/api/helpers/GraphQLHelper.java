@@ -9,7 +9,6 @@ import io.restassured.http.ContentType;
 import io.restassured.response.Response;
 import io.restassured.specification.RequestSpecification;
 
-import java.util.HashMap;
 import java.util.Map;
 
 public class GraphQLHelper {
@@ -20,22 +19,21 @@ public class GraphQLHelper {
         return RestAssured.given()
                 .baseUri(CONFIG.getGraphqlBaseUrl())
                 .contentType(ContentType.JSON)
-                .accept(ContentType.ANY)
+                .accept(ContentType.JSON)
                 .filter(new AllureRestAssured())
                 .filter(new RequestLoggingFilter())
                 .filter(new ResponseLoggingFilter());
     }
 
     public static Response query(String graphqlQuery) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("query", graphqlQuery);
-        return baseRequest().body(body).post();
+        return baseRequest()
+                .body(Map.of("query", graphqlQuery))
+                .post();
     }
 
     public static Response query(String graphqlQuery, Map<String, Object> variables) {
-        Map<String, Object> body = new HashMap<>();
-        body.put("query", graphqlQuery);
-        body.put("variables", variables);
-        return baseRequest().body(body).post();
+        return baseRequest()
+                .body(Map.of("query", graphqlQuery, "variables", variables))
+                .post();
     }
 }

@@ -1,6 +1,7 @@
 package api.tests;
 
 import api.helpers.GraphQLHelper;
+import config.Constants.StatusCode;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,7 +42,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query);
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             assertThat(response.jsonPath().getInt("data.characters.info.count")).isPositive();
             List<?> results = response.jsonPath().getList("data.characters.results");
             assertThat(results).isNotEmpty().hasSizeLessThanOrEqualTo(20);
@@ -63,7 +64,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query);
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             assertThat(response.jsonPath().getString("data.character.id")).isEqualTo("1");
             assertThat(response.jsonPath().getString("data.character.name")).isNotBlank();
             assertThat(response.jsonPath().getString("data.character.species")).isNotBlank();
@@ -85,7 +86,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query, Map.of("id", "2"));
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             assertThat(response.jsonPath().getString("data.character.id")).isEqualTo("2");
             assertThat(response.jsonPath().getString("data.character.name")).isNotBlank();
         }
@@ -123,7 +124,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query);
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
 
             List<?> results = response.jsonPath().getList("data.characters.results");
             assertThat(results).isNotEmpty();
@@ -152,7 +153,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query);
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             Object character = response.jsonPath().getJsonObject("data.character");
             assertThat(character).isNull();
         }
@@ -164,7 +165,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query);
 
-            assertThat(response.statusCode()).isEqualTo(400);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.BAD_REQUEST);
         }
 
         @Test
@@ -182,7 +183,7 @@ class GraphQLTest {
 
             Response response = GraphQLHelper.query(query);
 
-            assertThat(response.statusCode()).isEqualTo(400);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.BAD_REQUEST);
         }
     }
 }

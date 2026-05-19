@@ -3,6 +3,8 @@ package ui.pages;
 import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.options.SelectOption;
+import config.Constants.PagePaths;
+import config.TestConfig;
 
 import java.nio.file.Path;
 import java.util.regex.Pattern;
@@ -10,7 +12,7 @@ import java.util.regex.Pattern;
 public class FormPage {
 
     private final Page page;
-    private static final String URL = "https://demoqa.com/automation-practice-form";
+    private static final String URL = TestConfig.getInstance().getDemoQaBaseUrl() + PagePaths.PRACTICE_FORM;
 
     public FormPage(Page page) {
         this.page = page;

@@ -2,6 +2,7 @@ package integration;
 
 import api.helpers.ApiHelper;
 import api.models.Booking;
+import config.Constants.WebTableColumns;
 import ui.base.BaseUITest;
 import ui.pages.FormPage;
 import ui.pages.WebTablePage;
@@ -76,11 +77,11 @@ class ApiUiIntegrationTest extends BaseUITest {
         assertThat(tablePage.getVisibleRowCount()).isEqualTo(initialCount + 1);
 
         tablePage.search(firstName);
-        assertThat(tablePage.getCellText(0, 0)).isEqualTo(firstName);
-        assertThat(tablePage.getCellText(0, 1)).isEqualTo(lastName);
-        assertThat(tablePage.getCellText(0, 3)).isEqualTo(email);
-        assertThat(tablePage.getCellText(0, 4)).isEqualTo(salary);
-        assertThat(tablePage.getCellText(0, 5)).isEqualTo(department);
+        assertThat(tablePage.getCellText(0, WebTableColumns.FIRST_NAME)).isEqualTo(firstName);
+        assertThat(tablePage.getCellText(0, WebTableColumns.LAST_NAME)).isEqualTo(lastName);
+        assertThat(tablePage.getCellText(0, WebTableColumns.EMAIL)).isEqualTo(email);
+        assertThat(tablePage.getCellText(0, WebTableColumns.SALARY)).isEqualTo(salary);
+        assertThat(tablePage.getCellText(0, WebTableColumns.DEPARTMENT)).isEqualTo(department);
 
         String token = ApiHelper.getAuthToken();
         ApiHelper.deleteBooking(apiResponse.getBookingId(), token);

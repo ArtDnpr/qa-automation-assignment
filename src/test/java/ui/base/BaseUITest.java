@@ -5,7 +5,6 @@ import com.microsoft.playwright.BrowserContext;
 import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import config.TestConfig;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -19,8 +18,6 @@ public abstract class BaseUITest {
     protected static Browser browser;
     protected BrowserContext context;
     protected Page page;
-
-    protected static final TestConfig CONFIG = TestConfig.getInstance();
 
     @BeforeAll
     static void launchBrowser() {

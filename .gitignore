@@ -10,6 +10,7 @@ hs_err_pid*
 
 # IDE
 .idea/
+.allure/
 *.iml
 *.iws
 .vscode/

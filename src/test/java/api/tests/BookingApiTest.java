@@ -2,6 +2,12 @@ package api.tests;
 
 import api.helpers.ApiHelper;
 import api.models.Booking;
+import config.Constants.Endpoints;
+import config.Constants.FilterParams;
+import config.Constants.JsonFields;
+import config.Constants.StatusCode;
+import config.Constants.TestData;
+import config.Constants.Validation;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.TestInstance.Lifecycle;
@@ -28,19 +34,20 @@ class BookingApiTest {
     class CrudOperations {
 
         private int createdBookingId;
+        private Booking originalBooking;
 
         @Test
         @Order(1)
         @DisplayName("Create booking via POST /booking")
         void createBooking() {
-            Booking booking = ApiHelper.buildDefaultBooking();
-            Booking.BookingResponse response = ApiHelper.createBooking(booking);
+            originalBooking = ApiHelper.buildDefaultBooking();
+            Booking.BookingResponse response = ApiHelper.createBooking(originalBooking);
 
             assertThat(response.getBookingId()).isPositive();
-            assertThat(response.getBooking().getFirstname()).isEqualTo(booking.getFirstname());
-            assertThat(response.getBooking().getLastname()).isEqualTo(booking.getLastname());
-            assertThat(response.getBooking().getTotalprice()).isEqualTo(booking.getTotalprice());
-            assertThat(response.getBooking().isDepositpaid()).isEqualTo(booking.isDepositpaid());
+            assertThat(response.getBooking().getFirstname()).isEqualTo(originalBooking.getFirstname());
+            assertThat(response.getBooking().getLastname()).isEqualTo(originalBooking.getLastname());
+            assertThat(response.getBooking().getTotalprice()).isEqualTo(originalBooking.getTotalprice());
+            assertThat(response.getBooking().isDepositpaid()).isEqualTo(originalBooking.isDepositpaid());
 
             createdBookingId = response.getBookingId();
         }
@@ -51,10 +58,13 @@ class BookingApiTest {
         void getBookingById() {
             Response response = ApiHelper.getBooking(createdBookingId);
 
-            assertThat(response.statusCode()).isEqualTo(200);
-            assertThat(response.jsonPath().getString("firstname")).isEqualTo("John");
-            assertThat(response.jsonPath().getString("lastname")).isEqualTo("Doe");
-            assertThat(response.jsonPath().getInt("totalprice")).isEqualTo(150);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
+            assertThat(response.jsonPath().getString(JsonFields.FIRSTNAME))
+                    .isEqualTo(originalBooking.getFirstname());
+            assertThat(response.jsonPath().getString(JsonFields.LASTNAME))
+                    .isEqualTo(originalBooking.getLastname());
+            assertThat(response.jsonPath().getInt(JsonFields.TOTAL_PRICE))
+                    .isEqualTo(originalBooking.getTotalprice());
         }
 
         @Test
@@ -62,24 +72,27 @@ class BookingApiTest {
         @DisplayName("Update booking via PUT /booking/{id}")
         void updateBooking() {
             Booking updated = Booking.builder()
-                    .firstname("Jane")
-                    .lastname("Smith")
-                    .totalprice(250)
+                    .firstname(TestData.UPDATED_FIRSTNAME)
+                    .lastname(TestData.UPDATED_LASTNAME)
+                    .totalprice(TestData.UPDATED_TOTAL_PRICE)
                     .depositpaid(false)
                     .bookingdates(Booking.BookingDates.builder()
-                            .checkin("2025-03-01")
-                            .checkout("2025-03-15")
+                            .checkin(TestData.UPDATED_CHECKIN)
+                            .checkout(TestData.UPDATED_CHECKOUT)
                             .build())
-                    .additionalneeds("Lunch")
+                    .additionalneeds(TestData.UPDATED_ADDITIONAL_NEEDS)
                     .build();
 
             Response response = ApiHelper.updateBooking(createdBookingId, updated, authToken);
 
-            assertThat(response.statusCode()).isEqualTo(200);
-            assertThat(response.jsonPath().getString("firstname")).isEqualTo("Jane");
-            assertThat(response.jsonPath().getString("lastname")).isEqualTo("Smith");
-            assertThat(response.jsonPath().getInt("totalprice")).isEqualTo(250);
-            assertThat(response.jsonPath().getBoolean("depositpaid")).isFalse();
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
+            assertThat(response.jsonPath().getString(JsonFields.FIRSTNAME))
+                    .isEqualTo(TestData.UPDATED_FIRSTNAME);
+            assertThat(response.jsonPath().getString(JsonFields.LASTNAME))
+                    .isEqualTo(TestData.UPDATED_LASTNAME);
+            assertThat(response.jsonPath().getInt(JsonFields.TOTAL_PRICE))
+                    .isEqualTo(TestData.UPDATED_TOTAL_PRICE);
+            assertThat(response.jsonPath().getBoolean(JsonFields.DEPOSIT_PAID)).isFalse();
         }
 
         @Test
@@ -88,10 +101,10 @@ class BookingApiTest {
         void deleteBooking() {
             Response response = ApiHelper.deleteBooking(createdBookingId, authToken);
 
-            assertThat(response.statusCode()).isEqualTo(201);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.CREATED);
 
             Response getResponse = ApiHelper.getBooking(createdBookingId);
-            assertThat(getResponse.statusCode()).isEqualTo(404);
+            assertThat(getResponse.statusCode()).isEqualTo(StatusCode.NOT_FOUND);
         }
     }
 
@@ -119,34 +132,37 @@ class BookingApiTest {
         void getAllBookings() {
             Response response = ApiHelper.getAllBookings();
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             assertThat(response.jsonPath().getList("$")).isNotEmpty();
         }
 
         @Test
         @DisplayName("Filter bookings by firstname")
         void filterByFirstname() {
-            Response response = ApiHelper.getBookingsFiltered("firstname", "John");
+            Response response = ApiHelper.getBookingsFiltered(
+                    FilterParams.FIRSTNAME, TestData.DEFAULT_FIRSTNAME);
 
-            assertThat(response.statusCode()).isEqualTo(200);
-            assertThat(response.jsonPath().getList("bookingid")).isNotEmpty();
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
+            assertThat(response.jsonPath().getList(JsonFields.BOOKING_ID)).isNotEmpty();
         }
 
         @Test
         @DisplayName("Filter bookings by checkin date")
         void filterByCheckinDate() {
-            Response response = ApiHelper.getBookingsFiltered("checkin", "2025-01-01");
+            Response response = ApiHelper.getBookingsFiltered(
+                    FilterParams.CHECKIN, TestData.DEFAULT_CHECKIN);
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             assertThat(response.jsonPath().getList("$")).isNotNull();
         }
 
         @Test
         @DisplayName("Filter bookings by checkout date")
         void filterByCheckoutDate() {
-            Response response = ApiHelper.getBookingsFiltered("checkout", "2025-01-10");
+            Response response = ApiHelper.getBookingsFiltered(
+                    FilterParams.CHECKOUT, TestData.DEFAULT_CHECKOUT);
 
-            assertThat(response.statusCode()).isEqualTo(200);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
             assertThat(response.jsonPath().getList("$")).isNotNull();
         }
     }
@@ -164,9 +180,9 @@ class BookingApiTest {
             Response response = ApiHelper.baseRequest()
                     .pathParam("id", created.getBookingId())
                     .body(booking)
-                    .put("/booking/{id}");
+                    .put(Endpoints.BOOKING_BY_ID);
 
-            assertThat(response.statusCode()).isEqualTo(403);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.FORBIDDEN);
 
             ApiHelper.deleteBooking(created.getBookingId(), authToken);
         }
@@ -178,9 +194,9 @@ class BookingApiTest {
             Booking.BookingResponse created = ApiHelper.createBooking(booking);
 
             Response response = ApiHelper.updateBooking(
-                    created.getBookingId(), booking, "invalidtoken123");
+                    created.getBookingId(), booking, TestData.INVALID_TOKEN);
 
-            assertThat(response.statusCode()).isEqualTo(403);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.FORBIDDEN);
 
             ApiHelper.deleteBooking(created.getBookingId(), authToken);
         }
@@ -190,7 +206,7 @@ class BookingApiTest {
         void getNonExistentBooking_returns404() {
             Response response = ApiHelper.getBooking(Integer.MAX_VALUE);
 
-            assertThat(response.statusCode()).isEqualTo(404);
+            assertThat(response.statusCode()).isEqualTo(StatusCode.NOT_FOUND);
         }
 
         @Test
@@ -198,7 +214,7 @@ class BookingApiTest {
         void deleteNonExistentBooking_returnsError() {
             Response response = ApiHelper.deleteBooking(Integer.MAX_VALUE, authToken);
 
-            assertThat(response.statusCode()).isIn(404, 405);
+            assertThat(response.statusCode()).isIn(StatusCode.NOT_FOUND, StatusCode.METHOD_NOT_ALLOWED);
         }
     }
 
@@ -226,8 +242,8 @@ class BookingApiTest {
         void responseMatchesJsonSchema() {
             ApiHelper.getBooking(bookingId)
                     .then()
-                    .statusCode(200)
-                    .body(matchesJsonSchemaInClasspath("booking-schema.json"));
+                    .statusCode(StatusCode.OK)
+                    .body(matchesJsonSchemaInClasspath(Validation.BOOKING_SCHEMA_FILE));
         }
 
         @Test
@@ -235,12 +251,12 @@ class BookingApiTest {
         void responseContainsRequiredFields() {
             Response response = ApiHelper.getBooking(bookingId);
 
-            assertThat(response.statusCode()).isEqualTo(200);
-            assertThat(response.jsonPath().getString("firstname")).isNotNull();
-            assertThat(response.jsonPath().getString("lastname")).isNotNull();
-            assertThat(response.jsonPath().getInt("totalprice")).isNotNull();
-            assertThat(response.jsonPath().getString("bookingdates.checkin")).isNotNull();
-            assertThat(response.jsonPath().getString("bookingdates.checkout")).isNotNull();
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
+            assertThat(response.jsonPath().getString(JsonFields.FIRSTNAME)).isNotNull();
+            assertThat(response.jsonPath().getString(JsonFields.LASTNAME)).isNotNull();
+            assertThat(response.jsonPath().getInt(JsonFields.TOTAL_PRICE)).isNotNull();
+            assertThat(response.jsonPath().getString(JsonFields.BOOKING_DATES_CHECKIN)).isNotNull();
+            assertThat(response.jsonPath().getString(JsonFields.BOOKING_DATES_CHECKOUT)).isNotNull();
         }
 
         @Test
@@ -248,12 +264,12 @@ class BookingApiTest {
         void datesFollowExpectedFormat() {
             Response response = ApiHelper.getBooking(bookingId);
 
-            assertThat(response.statusCode()).isEqualTo(200);
-            String checkin = response.jsonPath().getString("bookingdates.checkin");
-            String checkout = response.jsonPath().getString("bookingdates.checkout");
+            assertThat(response.statusCode()).isEqualTo(StatusCode.OK);
+            String checkin = response.jsonPath().getString(JsonFields.BOOKING_DATES_CHECKIN);
+            String checkout = response.jsonPath().getString(JsonFields.BOOKING_DATES_CHECKOUT);
 
-            assertThat(checkin).matches("\\d{4}-\\d{2}-\\d{2}");
-            assertThat(checkout).matches("\\d{4}-\\d{2}-\\d{2}");
+            assertThat(checkin).matches(Validation.DATE_PATTERN);
+            assertThat(checkout).matches(Validation.DATE_PATTERN);
         }
     }
 }

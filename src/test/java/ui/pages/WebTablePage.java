@@ -1,14 +1,15 @@
 package ui.pages;
 
-import com.microsoft.playwright.Locator;
 import com.microsoft.playwright.Page;
+import config.Constants.PagePaths;
+import config.TestConfig;
 
 import java.util.List;
 
 public class WebTablePage {
 
     private final Page page;
-    private static final String URL = "https://demoqa.com/webtables";
+    private static final String URL = TestConfig.getInstance().getDemoQaBaseUrl() + PagePaths.WEB_TABLES;
 
     public WebTablePage(Page page) {
         this.page = page;
