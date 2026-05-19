@@ -35,6 +35,7 @@ src/test/java/
 ├── integration/
 │   └── ApiUiIntegrationTest.java    # API + UI cross-layer tests
 └── config/
+    ├── Constants.java               # Constants data
     └── TestConfig.java              # Centralized configuration
 ```
 
