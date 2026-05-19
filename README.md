@@ -125,3 +125,5 @@ mvn allure:serve
 - **Test data factory** — randomized test data generation (Faker) to avoid collisions
 - **Environment profiles** — separate configs for dev/staging/prod with Maven profiles
 - **Performance smoke tests** — basic response time assertions on critical API endpoints
+- **Update locators in tests files** — move string locator values into separate constants to unify repeated strings
+- **Add descriptive failure messages to Assertions** — move raw assertion checks into documented .as("description") calls to clarify failure context
